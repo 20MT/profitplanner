@@ -202,7 +202,6 @@
             user-select: none;
         }
 
-        /* Customizing the dropdown arrow */
         .payout-planner summary::-webkit-details-marker {
             display: none;
         }
@@ -295,11 +294,11 @@
     <div class="input-grid">
         <div class="input-group">
             <label for="avgProfit">Avg. Daily Win ($)</label>
-            <input type="number" id="avgProfit" placeholder="e.g. 500" value="500" oninput="calculate()">
+            <input type="number" id="avgProfit" placeholder="e.g. 100" value="100" oninput="calculate()">
         </div>
         <div class="input-group">
             <label for="avgLoss">Avg. Daily Loss ($)</label>
-            <input type="number" id="avgLoss" placeholder="e.g. 500" value="500" oninput="calculate()">
+            <input type="number" id="avgLoss" placeholder="e.g. 100" value="100" oninput="calculate()">
         </div>
     </div>
 
@@ -315,7 +314,7 @@
         </div>
         <div class="input-group">
             <label for="profitSplit">Profit Split (%)</label>
-            <input type="number" id="profitSplit" value="90" oninput="calculate()">
+            <input type="number" id="profitSplit" placeholder="e.g. 90" value="90" oninput="calculate()">
         </div>
     </div>
 
@@ -343,7 +342,7 @@
         </div>
     </div>
 
-    <details class="payout-planner" open>
+    <details class="payout-planner">
         <summary>Advanced: Payout & Buffer Planner</summary>
         <div class="planner-content">
             <p class="planner-desc">Plan how many trading days it will take to build a safety buffer and reach your withdrawal targets.</p>
@@ -367,12 +366,12 @@
             <div class="payout-results-grid">
                 <div class="payout-card">
                     <div class="result-label">Time to 1st Payout</div>
-                    <div class="result-value" id="timeToFirst" style="font-size: 1.1rem;">0 Days</div>
+                    <div class="result-value" id="timeToFirst" style="font-size: 1.1rem;">0 Trading Days</div>
                     <div class="payout-subtext" id="firstPayoutAmounts">Net: $0 / acc</div>
                 </div>
                 <div class="payout-card">
                     <div class="result-label">Recurring Frequency</div>
-                    <div class="result-value" id="timeToRecurring" style="font-size: 1.1rem;">0 Days</div>
+                    <div class="result-value" id="timeToRecurring" style="font-size: 1.1rem;">0 Trading Days</div>
                     <div class="payout-subtext" id="recurringPayoutAmounts">Net: $0 / acc</div>
                 </div>
             </div>
@@ -449,14 +448,14 @@
             const daysToFirst = Math.ceil(firstTarget / evPerAccount);
             const daysToRec = Math.ceil(recurringPayout / evPerAccount);
 
-            timeFirstEl.innerText = `${daysToFirst} Days`;
+            timeFirstEl.innerText = `${daysToFirst} Trading Days`;
             if (daysToFirst >= TRADING_DAYS_MONTH) {
-                timeFirstEl.innerText += ` (${(daysToFirst / TRADING_DAYS_MONTH).toFixed(1)} mo)`;
+                timeFirstEl.innerText += ` (${(daysToFirst / TRADING_DAYS_MONTH).toFixed(1)} Months)`;
             }
 
-            timeRecEl.innerText = `Every ${daysToRec} Days`;
+            timeRecEl.innerText = `Every ${daysToRec} Trading Days`;
             if (daysToRec >= TRADING_DAYS_MONTH) {
-                timeRecEl.innerText += ` (${(daysToRec / TRADING_DAYS_MONTH).toFixed(1)} mo)`;
+                timeRecEl.innerText += ` (${(daysToRec / TRADING_DAYS_MONTH).toFixed(1)} Months)`;
             }
         } else {
             timeFirstEl.innerText = "N/A (Losing)";
