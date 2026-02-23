@@ -144,7 +144,7 @@
             font-size: 1.5rem;
         }
 
-        /* New Per Account Section */
+        /* Per Account Section */
         .per-account-section {
             margin-top: 1.5rem;
             padding: 1rem;
@@ -181,6 +181,104 @@
             font-weight: 600;
         }
 
+        /* Payout Planner Dropdown */
+        .payout-planner {
+            margin-top: 1.5rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #334155;
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .payout-planner summary {
+            padding: 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+            list-style: none;
+            outline: none;
+            user-select: none;
+        }
+
+        /* Customizing the dropdown arrow */
+        .payout-planner summary::-webkit-details-marker {
+            display: none;
+        }
+        .payout-planner summary::before {
+            content: '▶ ';
+            display: inline-block;
+            margin-right: 0.5rem;
+            transition: transform 0.2s;
+        }
+        .payout-planner[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        .planner-content {
+            padding: 0 1rem 1rem 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 0.5rem;
+            padding-top: 1rem;
+        }
+
+        .planner-desc {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 1.2rem;
+            margin-top: 0;
+            line-height: 1.4;
+        }
+
+        .payout-results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .payout-card {
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid #1e293b;
+            text-align: center;
+        }
+
+        .payout-subtext {
+            font-size: 0.75rem;
+            color: var(--primary);
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        .total-payout-box {
+            margin-top: 1rem;
+            background: linear-gradient(to right, #1e293b, #0f172a);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--secondary);
+            text-align: center;
+        }
+
+        .payout-split-info {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            color: #cbd5e1;
+        }
+
+        .payout-split-info strong {
+            color: white;
+            font-size: 1.1rem;
+            display: block;
+            margin-top: 0.2rem;
+        }
+
         .footer {
             text-align: center;
             margin-top: 1.5rem;
@@ -213,7 +311,7 @@
     <div class="input-grid">
         <div class="input-group">
             <label for="winRate">Win Rate (%)</label>
-            <input type="number" id="winRate" placeholder="e.g. 60" value="50" oninput="calculate()">
+            <input type="number" id="winRate" placeholder="e.g. 60" value="55" oninput="calculate()">
         </div>
         <div class="input-group">
             <label for="profitSplit">Profit Split (%)</label>
@@ -245,6 +343,50 @@
         </div>
     </div>
 
+    <details class="payout-planner" open>
+        <summary>Advanced: Payout & Buffer Planner</summary>
+        <div class="planner-content">
+            <p class="planner-desc">Plan how many trading days it will take to build a safety buffer and reach your withdrawal targets.</p>
+            
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="bufferAmount">Account Buffer ($)</label>
+                    <input type="number" id="bufferAmount" placeholder="e.g. 2000" value="2000" oninput="calculate()">
+                </div>
+                <div class="input-group">
+                    <label for="firstPayout">First Payout ($)</label>
+                    <input type="number" id="firstPayout" placeholder="e.g. 500" value="500" oninput="calculate()">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="recurringPayout">Recurring Payout Target ($)</label>
+                <input type="number" id="recurringPayout" placeholder="e.g. 1000" value="1000" oninput="calculate()">
+            </div>
+
+            <div class="payout-results-grid">
+                <div class="payout-card">
+                    <div class="result-label">Time to 1st Payout</div>
+                    <div class="result-value" id="timeToFirst" style="font-size: 1.1rem;">0 Days</div>
+                    <div class="payout-subtext" id="firstPayoutAmounts">Net: $0 / acc</div>
+                </div>
+                <div class="payout-card">
+                    <div class="result-label">Recurring Frequency</div>
+                    <div class="result-value" id="timeToRecurring" style="font-size: 1.1rem;">0 Days</div>
+                    <div class="payout-subtext" id="recurringPayoutAmounts">Net: $0 / acc</div>
+                </div>
+            </div>
+            
+            <div class="total-payout-box">
+                <div class="result-label">Total Portfolio Take-Home (Net)</div>
+                <div class="payout-split-info">
+                    <div>1st Payout Total: <strong id="totalFirstNet">$0</strong></div>
+                    <div>Recurring Total: <strong id="totalRecurringNet">$0</strong></div>
+                </div>
+            </div>
+        </div>
+    </details>
+
     <div class="footer">
         Based on 21 trading days/mo and 252 trading days/yr.
     </div>
@@ -255,34 +397,25 @@
         const TRADING_DAYS_MONTH = 21;
         const TRADING_DAYS_YEAR = 252;
 
-        // Get inputs
+        // --- Core Inputs ---
         const profit = parseFloat(document.getElementById('avgProfit').value) || 0;
         const loss = parseFloat(document.getElementById('avgLoss').value) || 0;
         const accounts = parseFloat(document.getElementById('accCount').value) || 0;
         const winRate = parseFloat(document.getElementById('winRate').value) || 0;
         const split = parseFloat(document.getElementById('profitSplit').value) || 0;
 
-        // Calculate expected value (EV) per single account before split
+        // --- Payout Planner Inputs ---
+        const buffer = parseFloat(document.getElementById('bufferAmount').value) || 0;
+        const firstPayout = parseFloat(document.getElementById('firstPayout').value) || 0;
+        const recurringPayout = parseFloat(document.getElementById('recurringPayout').value) || 0;
+
+        // Calculate expected value (EV) per single account before split (Gross Daily Profit)
         const lossRate = 100 - winRate;
         const evPerAccount = (profit * (winRate / 100)) - (loss * (lossRate / 100));
 
         // Calculate Single Account Net (apply profit split only if making money)
-        let netDailyPerAccount = 0;
-        if (evPerAccount > 0) {
-            netDailyPerAccount = evPerAccount * (split / 100);
-        } else {
-            netDailyPerAccount = evPerAccount; // You absorb the full loss
-        }
-
-        // Calculate Single Account Extended Timeframes
-        const monthlyPerAccount = netDailyPerAccount * TRADING_DAYS_MONTH;
-        const annualPerAccount = netDailyPerAccount * TRADING_DAYS_YEAR;
-
-        // Calculate Total Portfolio (Net Per Account * Number of Accounts)
-        const netDailyTotal = netDailyPerAccount * accounts;
-        const monthlyTotal = monthlyPerAccount * accounts;
-        const annualTotal = annualPerAccount * accounts;
-
+        let netDailyPerAccount = evPerAccount > 0 ? evPerAccount * (split / 100) : evPerAccount;
+        
         // Formatter
         const formatter = new Intl.NumberFormat('en-US', { 
             style: 'currency', 
@@ -290,27 +423,52 @@
             maximumFractionDigits: 0 
         });
 
-        // Display Total Results
-        document.getElementById('dailyResult').innerText = formatter.format(netDailyTotal);
-        document.getElementById('monthlyResult').innerText = formatter.format(monthlyTotal);
-        document.getElementById('annualResult').innerText = formatter.format(annualTotal);
+        // Update main top modules
+        document.getElementById('dailyResult').innerText = formatter.format(netDailyPerAccount * accounts);
+        document.getElementById('monthlyResult').innerText = formatter.format((netDailyPerAccount * TRADING_DAYS_MONTH) * accounts);
+        document.getElementById('annualResult').innerText = formatter.format((netDailyPerAccount * TRADING_DAYS_YEAR) * accounts);
 
-        // Display Per Account Results
         document.getElementById('perAccDaily').innerText = formatter.format(netDailyPerAccount);
-        document.getElementById('perAccMonthly').innerText = formatter.format(monthlyPerAccount);
-        document.getElementById('perAccAnnual').innerText = formatter.format(annualPerAccount);
+        document.getElementById('perAccMonthly').innerText = formatter.format(netDailyPerAccount * TRADING_DAYS_MONTH);
+        document.getElementById('perAccAnnual').innerText = formatter.format(netDailyPerAccount * TRADING_DAYS_YEAR);
 
-        // Visual feedback for negative EV (turn cards red if losing money)
-        const totalCards = [document.getElementById('cardDaily'), document.getElementById('cardMonthly'), document.getElementById('cardAnnual')];
-        const perAccountSection = document.getElementById('perAccountSection');
-        
-        if (netDailyTotal < 0) {
-            totalCards.forEach(card => card.classList.add('negative'));
-            perAccountSection.classList.add('negative');
+        // Turn boxes red if negative
+        const negativeElements = [document.getElementById('cardDaily'), document.getElementById('cardMonthly'), document.getElementById('cardAnnual'), document.getElementById('perAccountSection')];
+        negativeElements.forEach(el => netDailyPerAccount < 0 ? el.classList.add('negative') : el.classList.remove('negative'));
+
+        // --- Payout Planner Logic ---
+        const firstTarget = buffer + firstPayout;
+        const netFirstPerAcc = firstPayout * (split / 100);
+        const netRecPerAcc = recurringPayout * (split / 100);
+
+        const timeFirstEl = document.getElementById('timeToFirst');
+        const timeRecEl = document.getElementById('timeToRecurring');
+
+        if (evPerAccount > 0) {
+            // How many days to hit gross targets?
+            const daysToFirst = Math.ceil(firstTarget / evPerAccount);
+            const daysToRec = Math.ceil(recurringPayout / evPerAccount);
+
+            timeFirstEl.innerText = `${daysToFirst} Days`;
+            if (daysToFirst >= TRADING_DAYS_MONTH) {
+                timeFirstEl.innerText += ` (${(daysToFirst / TRADING_DAYS_MONTH).toFixed(1)} mo)`;
+            }
+
+            timeRecEl.innerText = `Every ${daysToRec} Days`;
+            if (daysToRec >= TRADING_DAYS_MONTH) {
+                timeRecEl.innerText += ` (${(daysToRec / TRADING_DAYS_MONTH).toFixed(1)} mo)`;
+            }
         } else {
-            totalCards.forEach(card => card.classList.remove('negative'));
-            perAccountSection.classList.remove('negative');
+            timeFirstEl.innerText = "N/A (Losing)";
+            timeRecEl.innerText = "N/A (Losing)";
         }
+
+        // Display Net payout info
+        document.getElementById('firstPayoutAmounts').innerText = `Net: ${formatter.format(netFirstPerAcc)} / acc`;
+        document.getElementById('recurringPayoutAmounts').innerText = `Net: ${formatter.format(netRecPerAcc)} / acc`;
+        
+        document.getElementById('totalFirstNet').innerText = formatter.format(netFirstPerAcc * accounts);
+        document.getElementById('totalRecurringNet').innerText = formatter.format(netRecPerAcc * accounts);
     }
 </script>
 
