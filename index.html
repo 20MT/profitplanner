@@ -22,6 +22,8 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         .container {
@@ -32,7 +34,7 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.1);
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
         }
 
         h2 {
@@ -70,25 +72,56 @@
             border-color: var(--primary);
         }
 
-        .result-card {
+        /* New Grid Layout for Results */
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
             margin-top: 2rem;
-            padding: 1.5rem;
-            background: linear-gradient(to right, var(--primary), var(--secondary));
+        }
+
+        @media (min-width: 480px) {
+            .results-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .result-card {
+            padding: 1rem;
+            background: linear-gradient(to bottom right, #1e293b, #0f172a);
+            border: 1px solid var(--secondary);
             border-radius: 1rem;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Highlight the Annual card */
+        .result-card.highlight {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border: none;
         }
 
         .result-label {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            opacity: 0.9;
+            color: #cbd5e1;
+            margin-bottom: 0.5rem;
+        }
+        
+        .highlight .result-label {
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .result-value {
-            font-size: 2rem;
+            font-size: 1.25rem;
             font-weight: 800;
-            margin-top: 0.5rem;
+        }
+
+        .highlight .result-value {
+            font-size: 1.5rem;
         }
 
         .footer {
@@ -119,29 +152,55 @@
         <input type="number" id="winRate" placeholder="e.g. 60" oninput="calculate()">
     </div>
 
-    <div class="result-card">
-        <div class="result-label">Est. Daily Portfolio Return</div>
-        <div class="result-value" id="totalResult">$0.00</div>
+    <div class="results-grid">
+        <div class="result-card">
+            <div class="result-label">Daily</div>
+            <div class="result-value" id="dailyResult">$0.00</div>
+        </div>
+        <div class="result-card">
+            <div class="result-label">Monthly</div>
+            <div class="result-value" id="monthlyResult">$0.00</div>
+        </div>
+        <div class="result-card highlight">
+            <div class="result-label">Annual</div>
+            <div class="result-value" id="annualResult">$0.00</div>
+        </div>
     </div>
 
     <div class="footer">
-        Plan your scale. Manage your risk.
+        Based on 21 trading days/mo and 252 trading days/yr.
     </div>
 </div>
 
 <script>
     function calculate() {
+        // Constants for standard market trading days
+        const TRADING_DAYS_MONTH = 21;
+        const TRADING_DAYS_YEAR = 252;
+
         // Get input values
         const profit = parseFloat(document.getElementById('avgProfit').value) || 0;
         const accounts = parseFloat(document.getElementById('accCount').value) || 0;
         const winRate = parseFloat(document.getElementById('winRate').value) || 0;
 
-        // Formula: (Profit * Accounts) * (WinRate / 100)
-        const total = (profit * accounts) * (winRate / 100);
+        // Base daily calculation
+        const dailyTotal = (profit * accounts) * (winRate / 100);
+        
+        // Extended timeframe calculations
+        const monthlyTotal = dailyTotal * TRADING_DAYS_MONTH;
+        const annualTotal = dailyTotal * TRADING_DAYS_YEAR;
 
-        // Display result formatted as currency
-        document.getElementById('totalResult').innerText = 
-            new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(total);
+        // Currency formatter
+        const formatter = new Intl.NumberFormat('en-US', { 
+            style: 'currency', 
+            currency: 'USD',
+            maximumFractionDigits: 0 // Removes decimals for cleaner big numbers
+        });
+
+        // Display results
+        document.getElementById('dailyResult').innerText = formatter.format(dailyTotal);
+        document.getElementById('monthlyResult').innerText = formatter.format(monthlyTotal);
+        document.getElementById('annualResult').innerText = formatter.format(annualTotal);
     }
 </script>
 
