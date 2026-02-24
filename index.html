@@ -553,7 +553,7 @@
             timeFirstEl.innerHTML = firstText;
 
             // Format Recurring Payout with a line break for Months
-            let recText = `Every ${daysToRec} Days`;
+            let recText = `Every ${daysToRec} Trading Days`;
             if (daysToRec >= TRADING_DAYS_MONTH) {
                 recText += `<br><span style="font-size: 0.85em; color: #94a3b8; font-weight: normal;">(${(daysToRec / TRADING_DAYS_MONTH).toFixed(1)} Months)</span>`;
             }
