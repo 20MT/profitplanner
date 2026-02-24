@@ -43,6 +43,10 @@
             margin-bottom: 1.5rem;
             color: var(--primary);
             font-weight: 700;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
         }
 
         .input-grid {
@@ -61,10 +65,67 @@
         }
 
         label {
-            display: block;
+            display: flex;
+            align-items: center;
             margin-bottom: 0.5rem;
             font-size: 0.85rem;
             color: #94a3b8;
+        }
+
+        /* Tooltip Styles */
+        .tooltip {
+            position: relative;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 6px;
+            width: 14px;
+            height: 14px;
+            background-color: #334155;
+            color: #cbd5e1;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: help;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 220px;
+            background-color: #0f172a;
+            color: #f8fafc;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 10px;
+            position: absolute;
+            z-index: 10;
+            bottom: 150%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.2s;
+            font-size: 0.75rem;
+            font-weight: normal;
+            line-height: 1.4;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+        }
+
+        .tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #334155 transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
         }
 
         input {
@@ -181,7 +242,7 @@
             font-weight: 600;
         }
 
-        /* Payout Planner Dropdown */
+        /* Advanced Planner Dropdown */
         .payout-planner {
             margin-top: 1.5rem;
             background: rgba(15, 23, 42, 0.6);
@@ -220,14 +281,6 @@
             border-top: 1px solid rgba(255, 255, 255, 0.05);
             margin-top: 0.5rem;
             padding-top: 1rem;
-        }
-
-        .planner-desc {
-            font-size: 0.8rem;
-            color: #94a3b8;
-            margin-bottom: 1.2rem;
-            margin-top: 0;
-            line-height: 1.4;
         }
 
         .payout-results-grid {
@@ -289,31 +342,49 @@
 <body onload="calculate()">
 
 <div class="container">
-    <h2>Prop Planner</h2>
+    <h2>
+        Prop Planner 
+        <div class="tooltip">?<span class="tooltip-text">Disclaimer: This is a planning tool and does not model firm-specific payout eligibility rules or complex trailing drawdown mechanics.</span></div>
+    </h2>
     
     <div class="input-grid">
         <div class="input-group">
-            <label for="avgProfit">Avg. Daily Win ($)</label>
+            <label for="avgProfit">
+                Avg. Daily Win ($)
+                <div class="tooltip">?<span class="tooltip-text">The average amount of profit you make on a winning day per account.</span></div>
+            </label>
             <input type="number" id="avgProfit" placeholder="e.g. 100" value="100" oninput="calculate()">
         </div>
         <div class="input-group">
-            <label for="avgLoss">Avg. Daily Loss ($)</label>
+            <label for="avgLoss">
+                Avg. Daily Loss ($)
+                <div class="tooltip">?<span class="tooltip-text">The average amount you lose on a losing day per account. Keep this realistic!</span></div>
+            </label>
             <input type="number" id="avgLoss" placeholder="e.g. 100" value="100" oninput="calculate()">
         </div>
     </div>
 
     <div class="input-group">
-        <label for="accCount">Number of Accounts</label>
+        <label for="accCount">
+            Number of Accounts
+            <div class="tooltip">?<span class="tooltip-text">The total number of funded accounts you are trading simultaneously.</span></div>
+        </label>
         <input type="number" id="accCount" placeholder="e.g. 10" value="5" oninput="calculate()">
     </div>
 
     <div class="input-grid">
         <div class="input-group">
-            <label for="winRate">Win Rate (%)</label>
+            <label for="winRate">
+                Win Rate (%)
+                <div class="tooltip">?<span class="tooltip-text">The percentage of trading days that end in a profit.</span></div>
+            </label>
             <input type="number" id="winRate" placeholder="e.g. 60" value="55" oninput="calculate()">
         </div>
         <div class="input-group">
-            <label for="profitSplit">Profit Split (%)</label>
+            <label for="profitSplit">
+                Profit Split (%)
+                <div class="tooltip">?<span class="tooltip-text">The percentage of the profits you keep after the prop firm takes their cut.</span></div>
+            </label>
             <input type="number" id="profitSplit" placeholder="e.g. 90" value="90" oninput="calculate()">
         </div>
     </div>
@@ -343,24 +414,41 @@
     </div>
 
     <details class="payout-planner">
-        <summary>Advanced: Payout & Buffer Planner</summary>
+        <summary>Advanced: Payouts & Drawdown Risk</summary>
         <div class="planner-content">
-            <p class="planner-desc">Plan how many trading days it will take to build a safety buffer and reach your withdrawal targets.</p>
             
             <div class="input-grid">
                 <div class="input-group">
-                    <label for="bufferAmount">Account Buffer ($)</label>
+                    <label for="bufferAmount">
+                        Account Buffer ($)
+                        <div class="tooltip">?<span class="tooltip-text">The safety cushion you want to build in your account before making your first withdrawal.</span></div>
+                    </label>
                     <input type="number" id="bufferAmount" placeholder="e.g. 2000" value="2000" oninput="calculate()">
                 </div>
                 <div class="input-group">
-                    <label for="firstPayout">First Payout ($)</label>
+                    <label for="firstPayout">
+                        First Payout ($)
+                        <div class="tooltip">?<span class="tooltip-text">The gross amount you intend to withdraw for your very first payout.</span></div>
+                    </label>
                     <input type="number" id="firstPayout" placeholder="e.g. 500" value="500" oninput="calculate()">
                 </div>
             </div>
 
-            <div class="input-group">
-                <label for="recurringPayout">Recurring Payout Target ($)</label>
-                <input type="number" id="recurringPayout" placeholder="e.g. 1000" value="1000" oninput="calculate()">
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="recurringPayout">
+                        Recurring Payout ($)
+                        <div class="tooltip">?<span class="tooltip-text">The gross amount you intend to withdraw for all subsequent payouts.</span></div>
+                    </label>
+                    <input type="number" id="recurringPayout" placeholder="e.g. 1000" value="1000" oninput="calculate()">
+                </div>
+                <div class="input-group">
+                    <label for="maxDrawdown">
+                        Max Drawdown ($)
+                        <div class="tooltip">?<span class="tooltip-text">The total allowed drawdown (e.g. Trailing or Static) before the account is lost.</span></div>
+                    </label>
+                    <input type="number" id="maxDrawdown" placeholder="e.g. 2500" value="2500" oninput="calculate()">
+                </div>
             </div>
 
             <div class="payout-results-grid">
@@ -383,6 +471,14 @@
                     <div>Recurring Total: <strong id="totalRecurringNet">$0</strong></div>
                 </div>
             </div>
+
+            <div class="total-payout-box" style="margin-top: 1rem; border-color: #334155;">
+                <div class="result-label" style="color: #94a3b8;">Risk Management Metric</div>
+                <div class="payout-split-info">
+                    <div>Consecutive Losses to Blow Account: <strong id="consecutiveLosses" style="color: var(--danger);">0 Days</strong></div>
+                </div>
+            </div>
+
         </div>
     </details>
 
@@ -403,10 +499,11 @@
         const winRate = parseFloat(document.getElementById('winRate').value) || 0;
         const split = parseFloat(document.getElementById('profitSplit').value) || 0;
 
-        // --- Payout Planner Inputs ---
+        // --- Payout & Risk Inputs ---
         const buffer = parseFloat(document.getElementById('bufferAmount').value) || 0;
         const firstPayout = parseFloat(document.getElementById('firstPayout').value) || 0;
         const recurringPayout = parseFloat(document.getElementById('recurringPayout').value) || 0;
+        const maxDrawdown = parseFloat(document.getElementById('maxDrawdown').value) || 0;
 
         // Calculate expected value (EV) per single account before split (Gross Daily Profit)
         const lossRate = 100 - winRate;
@@ -431,7 +528,7 @@
         document.getElementById('perAccMonthly').innerText = formatter.format(netDailyPerAccount * TRADING_DAYS_MONTH);
         document.getElementById('perAccAnnual').innerText = formatter.format(netDailyPerAccount * TRADING_DAYS_YEAR);
 
-        // Turn boxes red if negative
+        // Turn boxes red if negative EV
         const negativeElements = [document.getElementById('cardDaily'), document.getElementById('cardMonthly'), document.getElementById('cardAnnual'), document.getElementById('perAccountSection')];
         negativeElements.forEach(el => netDailyPerAccount < 0 ? el.classList.add('negative') : el.classList.remove('negative'));
 
@@ -468,6 +565,15 @@
         
         document.getElementById('totalFirstNet').innerText = formatter.format(netFirstPerAcc * accounts);
         document.getElementById('totalRecurringNet').innerText = formatter.format(netRecPerAcc * accounts);
+
+        // --- Risk Module Logic ---
+        const riskEl = document.getElementById('consecutiveLosses');
+        if (loss > 0 && maxDrawdown > 0) {
+            const daysToBlow = Math.floor(maxDrawdown / loss);
+            riskEl.innerText = `${daysToBlow} Days`;
+        } else {
+            riskEl.innerText = "N/A";
+        }
     }
 </script>
 
